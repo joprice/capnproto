@@ -713,6 +713,13 @@ public:
         return kj::str("unknown format: ", to);
       }
 
+      if (convertFrom == Format::JSON || convertTo == Format::JSON) {
+        // We need annotations to process JSON.
+        // TODO(someday): Find a way that we can process annotations from json.capnp without
+        //   requiring other annotation-only imports like c++.capnp
+        annotationFlag = Compiler::COMPILE_ANNOTATIONS;
+      }
+
       return true;
     } else {
       return "invalid conversion, format is: <from>:<to>";
@@ -1037,6 +1044,7 @@ private:
         MallocMessageBuilder message;
         JsonCodec codec;
         codec.setPrettyPrint(pretty);
+        codec.handleByAnnotation(rootType);
         auto root = message.initRoot<DynamicStruct>(rootType);
         codec.decode(text, root);
         return writeConversion(root.asReader(), output);
@@ -1095,6 +1103,7 @@ private:
       case Format::JSON: {
         JsonCodec codec;
         codec.setPrettyPrint(pretty);
+        codec.handleByAnnotation(rootType);
         auto text = codec.encode(reader.as<DynamicStruct>(rootType));
         output.write({text.asBytes(), kj::StringPtr("\n").asBytes()});
         return;
