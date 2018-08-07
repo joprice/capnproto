@@ -74,3 +74,11 @@
 
 # editor artefacts
 *~
+
+# Buck
+/.buckd/
+/buckaroo/
+.buckconfig.local
+BUCKAROO_DEPS
+/buck-out/
+
